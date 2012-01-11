@@ -1,0 +1,97 @@
+{% extends "client_base.html" %}
+{% block content %}
+<link rel="stylesheet" href="/site_media/css/admin/jQuery/jquery.ui.all.css">
+<link rel="stylesheet" href="/site_media/css/dashboard_table_rows.css">
+<script type="text/javascript" src="/site_media/js/jquery-ui.min.js"></script>
+<script type="text/javascript">
+$(function(){
+   $(document).ready(function(){
+	   $(".dateclass").datepicker({"dateFormat": 'yy-mm-dd', changeMonth:true, changeYear:true});
+	   });
+
+   $("#selectall").click(function () {
+		  $('.case').attr('checked', this.checked);
+	});
+   $(".case").click(function(){
+		if($(".case").length == $(".case:checked").length) {
+			$("#selectall").attr("checked", "checked");
+		} else {
+			$("#selectall").removeAttr("checked");
+		}
+	});
+
+   $("#id_invoice").submit(function() {
+	   if($("#id_customer").val() == "") {
+	   		alert("Please select member name");
+	   		return false;
+	   		}
+
+	  if($("#from_date").val() == "") {
+	   		alert("Please select from date");
+	   		return false;
+	   		}
+
+	   if($("#to_date").val() == "") {
+	   		alert("Please select to date");
+	   		return false;
+	   		}
+   });
+   $(".convert_invoice").click(function(){
+	   if ($("input[name='choices']").serializeArray().length == 0) {
+	     	alert('Please select orders to convert to invoice');
+	     	return false;
+	   		}
+   });
+$("#id_customer").val("{{ member_id }}");
+$("#id_department").val("{{ beneficiary_department }}");
+});   				
+</script>
+<form name = "invoice" id = "id_invoice" action="." method="POST" ">{% csrf_token %}  
+		Customer Name: <select name="customer" id = "id_customer" selected="True">
+					  	<option value="">-----------------</option> 
+	    					{% for member in members %}
+						    	<option value= {{ member.id }}>{{ member.email }}</option>
+							{% endfor %}
+					   </select>
+		
+
+		Department: <select name = "department" id = "id_department">
+					<option value = "">-----------------</option> 
+ 						{% for beneficiary in beneficiarys %}
+	    					<option value = "{{ beneficiary.department }}">{{ beneficiary.department }}</option>
+						{% endfor %}
+					</select>
+
+		From Date:<input type="text" size="10" id="from_date" name="from_date" value = "{{from_date}}" class = "dateclass" />
+		To Date:  <input type="text" size="10"  id="to_date" name="to_date" value = "{{to_date}}" class = "dateclass"/>
+				  <input type="submit" value="Generate" name = "generate" /><br><br><br>
+
+			<table width="100%">
+				<thead>
+					<tr class="dasboard_table_header">
+						<th> <input type="checkbox" name="master"  value="head" id="selectall" /> </th>
+						<th> Order Number 		  </th>
+						<th> Order Date   		  </th>
+						<th> Member ID 	  </th>
+						<th> Member Login ID </th> 
+	                    <th> Net Amount			  </th> 
+	                </tr>
+					<tr class="dasboard_table_header">
+						{% if order_generation|length > 0 %}
+					      		{% for order in order_generation %}
+									<th> <input type="checkbox" name="choices" value={{order.id}} class="case"  /> </th>
+									<th> <a href="/dashboard/delivery_management/ordergeneration/{{order.id}}/"    id = {{order.id}} > {{order.id}}	</a> </th>
+									<th> {{order.delivery_date}} 																						 </th>
+									<th> {{member.id}}			 																						 </th>
+									<th> {{member.email}} 		 																						 </th>
+			                        <th> {{order.total_price}}	 																						 </th> 
+			          				</tr> 	
+			                	{% endfor %}
+			            {% else %}
+			            	<tr><td colspan="11"> No Regards Found </td></tr>
+			            {% endif %}	
+	 			</thead>
+	 		</table><br><br>
+ 				<input type="submit" value="Convert to Invoice" name = "convertinvoice" class = "convert_invoice" />
+</form>
+{% endblock %}

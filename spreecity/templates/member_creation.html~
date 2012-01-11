@@ -1,0 +1,32 @@
+{% extends "client_base.html" %}
+{% block content %}
+<link rel="stylesheet" href="/site_media/css/admin/jQuery/jquery.ui.all.css">
+
+<script type="text/javascript" >
+
+
+$(function(){
+    $(document).ready(function(){
+
+    });
+});
+
+
+</script>
+
+
+<form action="." method="post" name="member_creation" id="id_member_creation">{% csrf_token %}
+<h1>Member Creation</h1>
+<br>
+<label id="form_message" name="form_message">{{error}}</label>
+<table summary="" id="member_table">
+<tbody>
+{% for field in form %}
+<tr><td>{{field.label_tag}}</td><td>{{field}}</td><td>{{field.errors}}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+<br>
+<input type="submit" name="btnSave" id="bntSave" value="Save" />
+</form>
+{% endblock %}
